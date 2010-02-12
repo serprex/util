@@ -1,5 +1,5 @@
-// Original by Craig Stuart Sapp <craig@ccrma.stanford.edu>
-// Original at http://www-ccrma.stanford.edu/~craig/utility/flip/flip.cpp
+//Original by Craig Stuart Sapp <craig@ccrma.stanford.edu>
+//Original at http://www-ccrma.stanford.edu/~craig/utility/flip/flip.cpp
 #include <stdio.h>
 int main(int argc,char**argv){
 	char*temp=tmpnam(0);
@@ -12,39 +12,23 @@ int main(int argc,char**argv){
 		}
 		if(argv[1][1]=='t'){
 			printf("%s: ",argv[i]);
-			while((ch=getc(rame))!=EOF){
-				if(ch==0xa){
-					puts("NIX");
-					goto nextt;
-				}
-				if(ch==0xd){
-					puts(getc(rame)==0xa?"DOS":"MAC");
-					goto nextt;
-				}
-			}
-			puts("???");
-			nextt:fclose(rame);
+			while((ch=getc(rame))!=0xa&&ch!=0xd&&ch!=EOF);
+			puts(ch==0xa?"NIX":ch==EOF?"???":(getc(rame)==0xa?"DOS":"MAC"));
+			fclose(rame);
 		}else{
 			FILE*wame=fopen(temp,"wb");
 			int ch0d=0;
 			while((ch=getc(rame))!=EOF){
 				if(argv[1][1]=='d'){
-					if(ch==0xd){
-						DOSNEWLINE:
+					if(ch==0xd||(ch==0xa&&!ch0d)){
 						putc(0xd,wame);
 						putc(0xa,wame);
-					}else if(ch==0xa){
-						if(!ch0d) goto DOSNEWLINE;
-					}else putc(ch,wame);
-				}else if(argv[1][1]=='u'){
-					if(ch==0xa&&ch0d) goto CHOW;
-					putc(ch==0xd?0xa:ch,wame);
+					}else if(ch!=0xa) putc(ch,wame);
 				}else if(argv[1][1]=='m'){
-					if(ch==0xa){
-						if(!ch0d) putc(0xd,wame);
-					}else putc(ch,wame);
-				}
-				CHOW:ch0d=ch==0xd;
+					if(ch!=0xa) putc(ch,wame);
+					else if(!ch0d) putc(0xd,wame);
+				}else if(ch!=0xa||!ch0d) putc(ch==0xd?0xa:ch,wame);
+				ch0d=ch==0xd;
 			}
 			fclose(wame);
 			fclose(rame);
