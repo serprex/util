@@ -6,11 +6,8 @@ int main(int argc,char**argv){
 	if(argc<3||(argv[1][1]!='u'&&argv[1][1]!='d'&&argv[1][1]!='t'&&argv[1][1]!='m')) puts("Convert newline format\n\n-u NIX\n -d DOS\n -m MAC\n -t ???");
 	else for(int ch,i=2;i<argc;i++){
 		FILE*rame=fopen(argv[i],"rb");
-		if(!rame){
-			printf("? %s\n",argv[i]);
-			continue;
-		}
-		if(argv[1][1]=='t'){
+		if(!rame) printf("? %s\n",argv[i]);
+		else if(argv[1][1]=='t'){
 			printf("%s: ",argv[i]);
 			while((ch=getc(rame))!=0xa&&ch!=0xd&&ch!=EOF);
 			puts(ch==0xa?"NIX":ch==EOF?"???":(getc(rame)==0xa?"DOS":"MAC"));
