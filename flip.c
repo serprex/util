@@ -4,11 +4,11 @@
 int main(int argc,char**argv){
 	argv[0]=tmpnam(0);
 	if(argv[1][0]=='-') argv[1]++;
-	if(argc<3) puts("Convert newline format\n\nu NIX\nd DOS\nm MAC\nt ???\nsn \\t->n spaces\ntn n spaces->\\t");
+	if(argc<3) puts("Convert newline format\n\nu NIX\nd DOS\nm MAC\n? ???\nsn \\t->n spaces\ntn n spaces->\\t");
 	else for(int ch,i=2;i<argc;i++){
 		FILE*rame=fopen(argv[i],"rb");
 		if(!rame) printf("? %s\n",argv[i]);
-		else if(argv[1][0]=='t'){
+		else if(argv[1][0]=='?'){
 			printf("%s: ",argv[i]);
 			while((ch=getc(rame))!=0xa&&ch!=0xd&&ch!=EOF);
 			puts(ch==0xa?"NIX":ch==EOF?"???":(getc(rame)==0xa?"DOS":"MAC"));
