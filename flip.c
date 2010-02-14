@@ -2,7 +2,7 @@
 //Original at http://www-ccrma.stanford.edu/~craig/utility/flip/flip.cpp
 #include <stdio.h>
 int main(int argc,char**argv){
-	argv[0]=tmpnam(0);
+	char*temp=tmpnam(0);
 	if(argv[1][0]=='-') argv[1]++;
 	if(argc<3) puts("Convert newline format\n\nu NIX\nd DOS\nm MAC\n? ???\nsn \\t->n spaces\ntn n spaces->\\t");
 	else for(int ch,i=2;i<argc;i++){
@@ -14,7 +14,7 @@ int main(int argc,char**argv){
 			puts(ch==0xa?"NIX":ch==EOF?"???":(getc(rame)==0xa?"DOS":"MAC"));
 			fclose(rame);
 		}else{
-			FILE*wame=fopen(argv[0],"wb");
+			FILE*wame=fopen(temp,"wb");
 			int ch0d=0,chsp='0';
 			while((ch=getc(rame))!=EOF){
 				switch(argv[1][0]){
@@ -44,7 +44,7 @@ int main(int argc,char**argv){
 			fclose(wame);
 			fclose(rame);
 			remove(argv[i]);
-			rename(argv[0],argv[i]);
+			rename(temp,argv[i]);
 		}
 	}
 	return 0;
