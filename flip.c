@@ -13,7 +13,7 @@ int main(int argc,char**argv){
 			fclose(rame);
 		}else{
 			FILE*wame=fopen(temp,"wb");
-			int ch0d=0,chsp='0';
+			int ch0d=0;
 			while((ch=getc(rame))!=EOF){
 				switch(argv1[0]){
 				case'd':
@@ -27,17 +27,18 @@ int main(int argc,char**argv){
 				break;case'u':putc(ch==0xd?0xa:ch,wame);
 				break;case's':
 					if(ch!='\t') putc(ch,wame);
-					else for(chsp=argv1[1];chsp>'0';chsp--) putc(' ',wame);
-				break;case't':
+					else for(ch0d=argv1[1]-48;ch0d;ch0d--) putc(' ',wame);
+				continue;case't':
 					if(ch!=' '){
-						for(;chsp>'0';chsp--) putc(' ',wame);
+						for(;ch0d;ch0d--) putc(' ',wame);
 						putc(ch,wame);
-					}else if(++chsp==argv1[1]){
-						chsp='0';
+					}else if(++ch0d==argv1[1]){
+						ch0d=0;
 						putc('\t',wame);
 					}
-				ch0d=ch==0xd;
+					continue;
 				}
+				ch0d=ch==0xd;
 			}
 			fclose(wame);
 			fclose(rame);
