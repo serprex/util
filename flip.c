@@ -24,7 +24,8 @@ int main(int argc,char**argv){
 				break;case'm':
 					if(ch!=0xa) putc(ch,wame);
 					else if(!ch0d) putc(0xd,wame);
-				break;case'u':putc(ch==0xd?0xa:ch,wame);
+				break;case'u':
+					if(!ch0d) putc(ch==0xd?0xa:ch,wame);
 				break;case's':
 					if(ch!='\t') putc(ch,wame);
 					else for(ch0d=argv1[1]-48;ch0d;ch0d--) putc(' ',wame);
