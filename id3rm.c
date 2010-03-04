@@ -15,25 +15,22 @@ int main(int argc,char**argv){
 	for(char**fn=argv+1;*fn;fn++){
 		FILE*f=fopen(*fn,"rb+");
 		uint32_t buff=0;
-		if(!fseek(f,-128,SEEK_END)){
-			fread(&buff,3,1,f);
-			if(buff==TAG) truncate(*fn,ftell(f)-3);
-			rewind(f);
-		}
 		fread(&buff,3,1,f);
 		if(buff==ID3){
 			fseek(f,3,SEEK_CUR);
 			fread(&buff,4,1,f);
 			fseek(f,LEN(buff),SEEK_CUR);
-			long rml=ftell(f),ffl=0,tpl;
+			long rml=ftell(f);
 			do{
-				ffl+=tpl=fread(temp,1,sizeof(temp),f);
-				fseek(f,-rml-tpl,SEEK_CUR);
-				fwrite(temp,1,tpl,f);
+				buff=fread(temp,1,sizeof(temp),f);
+				fseek(f,-rml-buff,SEEK_CUR);
+				fwrite(temp,1,buff,f);
 				fseek(f,rml,SEEK_CUR);
-			}while(tpl==sizeof(temp));
-			truncate(*fn,ffl);
-		}
-
+			}while(buff==sizeof(temp));
+			fseek(f,-128,SEEK_CUR);
+		}else fseek(f,-128,SEEK_END);
+		buff=0;
+		fread(&buff,3,1,f);
+		truncate(*fn,ftell(f)+(buff==TAG?-3:125));
 	}
 }
