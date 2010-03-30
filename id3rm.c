@@ -31,6 +31,7 @@ int main(int argc,char**argv){
 		}else fseek(f,-128,SEEK_END);
 		buff=0;
 		fread(&buff,3,1,f);
+		fflush(f);
 		truncate(*fn,ftell(f)+(buff==TAG?-3:125));
 	}
 }
