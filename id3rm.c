@@ -10,8 +10,8 @@
 	#define ID3 0x00334449
 	#define LEN(x) (((x&0x7F000000)>>24)|((x&0x7F0000)>>9)|((x&0x7F00)<<6)|((x&0x7F)<<21))
 #endif
-char temp[65536];
 int main(int argc,char**argv){
+	char temp[65536];
 	for(char**fn=argv+1;*fn;fn++){
 		FILE*f=fopen(*fn,"rb+");
 		uint32_t buff=0;
@@ -31,7 +31,8 @@ int main(int argc,char**argv){
 		}else fseek(f,-128,SEEK_END);
 		buff=0;
 		fread(&buff,3,1,f);
-		fflush(f);
-		truncate(*fn,ftell(f)+(buff==TAG?-3:125));
+		long a=ftell(f);
+		fclose(f);
+		truncate(*fn,a+(buff==TAG?-3:125));
 	}
 }
