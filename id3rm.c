@@ -28,6 +28,7 @@ int main(int argc,char**argv){
 			fread(temp,fnl,1,f);
 			frewind(f);
 			fwrite(temp,fln,1,f);
+			free(temp);
 			fseek(f,-128,SEEK_CUR);
 		}else fseek(f,-128,SEEK_END);
 		buff=0;
