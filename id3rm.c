@@ -25,8 +25,8 @@ int main(int argc,char**argv){
 			long fln=ftell(f)-rml;
 			char*temp=malloc(fln);
 			fseek(f,rml,SEEK_SET);
-			fread(temp,fnl,1,f);
-			frewind(f);
+			fread(temp,fln,1,f);
+			rewind(f);
 			fwrite(temp,fln,1,f);
 			free(temp);
 			fseek(f,-128,SEEK_CUR);
