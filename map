@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+from subprocess import call
+from sys import argv,version_info
+from os import walk
+from os.path import join,isfile
+from random import shuffle,choice
+from itertools import cycle,chain,repeat
+from re import compile as re
+if version_info[0]<3:from itertools import imap as map
+else:xrange=range
+p=argv.pop(0)
+F=list
+M={"r":"Fshuffle(x) or x","s":"Fsorted(x)","i":"Fcycle(x)","c":"Fchoice(x) for a in cycle(' ')"}
+if isfile(p+"."):
+	with open(p+".") as f:M.update(f.split(",",1) for f in re("\n{2,}").sub("\n",f.read()).strip().split("\n"))
+if argv:
+	for c,f in enumerate(argv):
+		while argv[c] in M:argv[c:c+1]=M[argv[c]].split(",")
+	for c in xrange(len(argv)-3,-1,-1):
+		if argv[c]==",":argv[c:c+3]=M.get(argv[c+1],argv[c+1])+M.get(argv[c+2],argv[c+2]),
+		elif argv[c][0]=="\\":argv[c]=argv[c][1:]
+	while c<len(argv):
+		if argv[c].isdigit():argv[c:c+2]=repeat(argv[c+1],int(argv[c]))
+		if argv[c][0]=="F":F=lambda x,f=eval("lambda x:("+argv.pop(c)[1:]+")"),F=F:f(F(x))
+		else:c+=1
+	if argv:
+		rp,rea=(re(r"(?<!\\)@").sub,re(r"(?<!\\)\\@").sub) if "\\@" in argv[0] else (lambda x,y:y.replace("@",x),lambda x,y:y)
+		c=rp("'@'",argv.pop(0)[:-1].strip() if argv[0][-1]=="@" else argv.pop(0).strip()+" @")
+		for f in F(chain(*((f,) if isfile(f) else chain(*([join(r,f) for f in f] for r,d,f in walk(f))) for f in argv or ("./",)))):
+			call(rea("@",rp(f.replace("'",'\'"\'"\''),c)).replace("\\\\@","\\@"),shell=True)
