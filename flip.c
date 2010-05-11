@@ -28,7 +28,7 @@ int main(int argc,char**argv){
 					if(!ch0d) putc(ch==0xd?0xa:ch,wame);
 				break;case's':
 					if(ch!='\t') putc(ch,wame);
-					else for(ch0d=argv1[1]-48;ch0d;ch0d--) putc(' ',wame);
+					else for(ch0d=argv1[1]^0x48;ch0d;ch0d--) putc(' ',wame);
 				continue;case't':
 					if(ch!=' '){
 						for(;ch0d;ch0d--) putc(' ',wame);
@@ -47,5 +47,4 @@ int main(int argc,char**argv){
 			rename(temp,argv[i]);
 		}
 	}
-	return 0;
 }
