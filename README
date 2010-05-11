@@ -1,28 +1,28 @@
 Variant of xarg. It varies in some respects, such as ease of random call order
 
-map mplayer ~/music = find ~/music/ | xargs mplayer
-map mplayer ~/music r = find ~/music/ | shuf | xargs mplayer
+map mplayer ~/music = find ~/music | xargs mplayer
+map mplayer ~/music r = find ~/music | shuf | xargs mplayer
 
 If one desires the command not simply have the file appended to the end of it, explicitly append @: map "app @ arg@". Use of @ may be escaped
 
 Map can easily aggregate files
 map mplayer /music /music/submusic /m/file.mp3 /m/m c
-Would go through all the directories and file.mp3 choosing randomly with due to c
+Would go through all the directories and file.mp3 choosing randomly due to c
 
 There is also an i and an s, loop and sort resp
 
 Note that all previously mentioned options are sugar for the F<python expression for resulting iterator> syntax
 
-map. contains a list of directives. asdf,fdsa will replace asdf with fdsa
+map. contains a list of macros. asdf,fdsa will replace asdf with fdsa
 
 The use of , as an appendage operator can be useful in conjunction with M:
-map mplayer , music Notwist c #with music,/hassle/is/long/path/ as map.py.
+map mplayer , music Notwist c #with music,/hassle/is/long/path/ as map.
 Will randomly play from /hassle/is/long/path/Notwist
 
 One may wish for bias in their random, for this we have numbers to lie the deed:
-map mplayer c 4 , music Notwist /music
+map mplayer c 4 , music Notwist music
 Interpreted as:
-map mplayer c , music Notwist , music Notwist , music Notwist , music Notwist /music
+map mplayer c , music Notwist , music Notwist , music Notwist , music Notwist music
 
 Replacement before concatenation before multiplication
 
