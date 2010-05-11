@@ -33,7 +33,7 @@ int main(int argc,char**argv){
 					if(ch!=' '){
 						for(;ch0d;ch0d--) putc(' ',wame);
 						putc(ch,wame);
-					}else if(++ch0d==argv1[1]){
+					}else if(++ch0d==(argv1[1]^48)){
 						ch0d=0;
 						putc('\t',wame);
 					}
