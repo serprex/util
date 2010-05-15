@@ -10,7 +10,7 @@ if version_info[0]<3:from itertools import imap as map
 else:xrange=range
 p=argv.pop(0)
 F=list
-M={"r":"Fshuffle(x) or x","s":"Fsorted(x)","i":"Fcycle(x)","c":"Fchoice(x) for a in cycle(' ')"}
+M={"r":":shuffle(x) or x","s":":sorted(x)","i":":cycle(x)","c":":choice(x) for a in cycle(' ')"}
 if isfile(p+"."):
 	with open(p+".") as f:M.update(f.split(",",1) for f in re("\n{2,}").sub("\n",f.read()).strip().split("\n"))
 if argv:
@@ -21,7 +21,7 @@ if argv:
 		elif argv[c][0]=="\\":argv[c]=argv[c][1:]
 	while c<len(argv):
 		if argv[c].isdigit():argv[c:c+2]=repeat(argv[c+1],int(argv[c]))
-		if argv[c][0]=="F":F=lambda x,f=eval("lambda x:("+argv.pop(c)[1:]+")"),F=F:f(F(x))
+		if argv[c][0]==":":F=lambda x,f=eval("lambda x:("+argv.pop(c)[1:]+")"),F=F:f(F(x))
 		else:c+=1
 	if argv:
 		rp,rea=(re(r"(?<!\\)@").sub,re(r"(?<!\\)\\@").sub) if "\\@" in argv[0] else (lambda x,y:y.replace("@",x),lambda x,y:y)

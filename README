@@ -11,7 +11,7 @@ Would go through all the directories and file.mp3 choosing randomly due to c
 
 There is also an i and an s, loop and sort resp
 
-Note that all previously mentioned options are sugar for the F<python expression for resulting iterator> syntax
+Note that all previously mentioned options are sugar for the :iterator syntax
 
 map. contains a list of macros. asdf,fdsa will replace asdf with fdsa
 
