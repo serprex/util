@@ -1,0 +1,17 @@
+#!/usr/bin/python
+from os import popen,path
+from sys import argv
+from gtk import gdk
+if len(argv)==2:
+	l=popen("xwininfo -id `xprop -root|grep '_NET_ACTIVE_WINDOW(WINDOW)'|cut -d ' ' -f 5`").readlines()
+	x=int(l[3].rsplit(" ",1)[1])
+	y=int(l[4].rsplit(" ",1)[1])
+	w=int(l[7].rsplit(" ",1)[1])
+	h=int(l[8].rsplit(" ",1)[1])
+else:
+	x=y=0
+	w=gdk.screen_width()
+	h=gdk.screen_height()
+f=0
+while path.isfile(path.expanduser("~/%d.png"%f)):f+=1
+gdk.Pixbuf(gdk.COLORSPACE_RGB,True,8,w,h).get_from_drawable(gdk.get_default_root_window(),gdk.colormap_get_system(),x,y,0,0,w,h).save("%d.png"%f,"png")
