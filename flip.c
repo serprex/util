@@ -28,12 +28,12 @@ int main(int argc,char**argv){
 					if(!ch0d) putc(ch==0xd?0xa:ch,wame);
 				break;case's':
 					if(ch!='\t') putc(ch,wame);
-					else for(ch0d=argv1[1]^48;ch0d;ch0d--) putc(' ',wame);
+					else for(ch0d=argv1[1]-48;ch0d;ch0d--) putc(' ',wame);
 				continue;case't':
 					if(ch!=' '){
 						for(;ch0d;ch0d--) putc(' ',wame);
 						putc(ch,wame);
-					}else if(++ch0d==(argv1[1]^48)){
+					}else if(++ch0d==(argv1[1]-48)){
 						ch0d=0;
 						putc('\t',wame);
 					}
