@@ -1,9 +1,8 @@
-//Original by Craig Stuart Sapp <craig@ccrma.stanford.edu>
-//Original at http://www-ccrma.stanford.edu/~craig/utility/flip/flip.cpp
+//Original http://www-ccrma.stanford.edu/~craig/utility/flip/flip.cpp
 #include <stdio.h>
 int main(int argc,char**argv){
 	char*argv1,*temp=tmpnam(0);
-	if(argc<3) puts("Convert whitespace\nu NIX\nd DOS\nm MAC\n? ???\nsn \\t->n spaces\ntn n spaces->\\t");
+	if(argc<3) puts("u NIX\nd DOS\nm MAC\n? ???\nsn \\t->n spaces\ntn n spaces->\\t");
 	else for(int ch,i=(argv1=argv[1]+(argv[1][0]=='-'),2);i<argc;i++){
 		FILE*rame=fopen(argv[i],"rb");
 		if(!rame) printf("? %s\n",argv[i]);
@@ -11,7 +10,7 @@ int main(int argc,char**argv){
 			while((ch=getc(rame))!=0xa&&ch!=0xd&&ch!=EOF);
 			printf("%s: %s\n",argv[i],ch==0xa?"NIX":ch==EOF?"???":(getc(rame)==0xa?"DOS":"MAC"));
 			fclose(rame);
-		}else{
+		}else if(argv1[0]=='d'||argv1[0]=='m'||argv1[0]=='u'||argv1[0]=='s'||argv1[0]=='t'){
 			FILE*wame=fopen(temp,"wb");
 			int ch0d=0;
 			while((ch=getc(rame))!=EOF){
