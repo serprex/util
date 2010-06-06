@@ -1,0 +1,21 @@
+#!/usr/bin/python
+from pyglet import *
+from os import popen
+from sys import argv
+S=window.get_platform().get_default_display().get_default_screen()
+W=window.Window(S.width,50,style="borderless",vsync=False)
+W.set_location(0,S.height-25>>1)
+C=clock.ClockDisplay(font.load(name="Monospace",size=32),color=(1.,1.,1.,1.))
+clock.set_fps_limit(1)
+A=3 if len(argv)==1 else int(argv[1])
+@W.event
+def on_draw():
+	global A
+	gl.glClear(gl.GL_COLOR_BUFFER_BIT)
+	C.format=popen("date").read()[:-1]
+	C.update_text()
+	C.draw()
+	clock.tick()
+	if not A:app.exit()
+	A-=1
+app.run()
