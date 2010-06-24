@@ -1,3 +1,6 @@
-#!/usr/bin/python
-from sys import argv
-(__import__("subprocess").Popen(argv[2:]),__import__("time").sleep(float(argv[1])))[0].terminate()
+#!/bin/sh
+a=$1
+shift
+"$@"&
+sleep $a
+kill $!

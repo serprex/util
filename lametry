@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 lame -V4 "$1" "$1."
 if [ `stat -c %s "$1"` -gt `stat -c %s "$1."` ]
 then mv -f "$1." "$1"
