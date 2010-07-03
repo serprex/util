@@ -1,6 +1,5 @@
 #!/bin/sh
 a=$1
 shift
-"$@"&
-sleep $a
+"$@"&sleep $a
 kill $!

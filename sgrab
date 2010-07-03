@@ -1,9 +1,10 @@
 #!/usr/bin/python
-from os import popen,path
+from os import path
+from subprocess import Popen,PIPE
 from sys import argv
 from gtk import gdk
 if len(argv)==2:
-	h=popen("xwininfo -id `xprop -root|grep '_NET_ACTIVE_WINDOW(WINDOW)'|cut -d ' ' -f 5`").readlines()
+	h=Popen("xwininfo -id `xprop -root|grep '_NET_ACTIVE_WINDOW(WINDOW)'|cut -d ' ' -f 5`",stdout=PIPE).readlines()
 	x=int(h[3].rsplit(" ",1)[1])
 	y=int(h[4].rsplit(" ",1)[1])
 	w=int(h[7].rsplit(" ",1)[1])

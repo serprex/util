@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from pyglet import *
+from pyglet import window,clock,app
 from subprocess import Popen,PIPE
 from sys import argv
 S=window.get_platform().get_default_display().get_default_screen()
