@@ -1,61 +1,16 @@
-#!/usr/bin/python
-"""
-Variant of xarg. It varies in some respects, such as ease of random call order
-
-map mplayer ~/music = find ~/music | xargs mplayer
-map mplayer ~/music r = find ~/music | shuf | xargs mplayer
-
-If one desires the command not simply have the file appended to the end of it, explicitly append @: map "app @ arg@". Use of @ may be escaped
-
-Map can easily aggregate files
-map mplayer /music /music/submusic /m/file.mp3 /m/m c
-Would go through all the directories and file.mp3 choosing randomly due to c
-Macros may easily be added to the source
-
-The use of , as an appendage operator can be useful in conjunction with M:
-map mplayer , music Notwist c #with music,/hassle/is/long/path/ as map.
-Will randomly play from /hassle/is/long/path/Notwist
-
-One may wish for bias in their random, for this we have numbers to lie the deed:
-map mplayer c 4 , music Notwist music
-Interpreted as:
-map mplayer c , music Notwist , music Notwist , music Notwist , music Notwist music
-
-Replacement before concatenation before multiplication
-
-, , x y z -> xyz
-, 2 , x y z -> xyxy z
-"""
-from subprocess import call
-from sys import argv,version_info
-from os import walk
-from os.path import join,isfile
-from random import shuffle,choice
-from itertools import cycle,chain,repeat
-from re import compile as re
-if version_info[0]<3:from itertools import imap as map
-else:xrange=range
-p=argv.pop(0)
-F=list
-M={
-"r":":shuffle(x) or x",
-"s":":sorted(x)",
-"i":":cycle(x)",
-"c":":choice(x) for a in cycle(' ')",
-"sm":"/root/Musique/",
-"mp":"mplayer"}
-if argv:
-	for c,f in enumerate(argv):
-		while argv[c] in M:argv[c:c+1]=M[argv[c]].split(",")
-	for c in xrange(len(argv)-3,-1,-1):
-		if argv[c]==",":argv[c:c+3]=M.get(argv[c+1],argv[c+1])+M.get(argv[c+2],argv[c+2]),
-		elif argv[c][0]=="\\":argv[c]=argv[c][1:]
-	while c<len(argv):
-		if argv[c].isdigit():argv[c:c+2]=repeat(argv[c+1],int(argv[c]))
-		if argv[c][0]==":":F=lambda x,f=eval("lambda x:("+argv.pop(c)[1:]+")"),F=F:f(F(x))
-		else:c+=1
-	if argv:
-		rp,rea=(re(r"(?<!\\)@").sub,re(r"(?<!\\)\\@").sub) if "\\@" in argv[0] else (lambda x,y:y.replace("@",x),lambda x,y:y)
-		c=rp("'@'",argv.pop(0)[:-1].strip() if argv[0][-1]=="@" else argv.pop(0).strip()+" @")
-		for f in F(chain(*((f,) if isfile(f) else chain(*([join(r,f) for f in f] for r,d,f in walk(f))) for f in argv or ("./",)))):
-			call(rea("@",rp(f.replace("'",'\'"\'"\''),c)).replace("\\\\@","\\@"),shell=True)
+#!/bin/sh
+t=`tempfile`
+eval `python -c 'from sys import argv
+argv=[{
+"r":"|sort -R",
+"s":"|sort",
+"m":"~/Musique/",
+"p":"mplayer"}.get(c,c) for c in argv[1:] if c]
+p=""
+for c in range(len(argv)-3,-1,-1):
+	if argv[c]==",":argv[c:c+3]=argv[c+1]+argv[c+2]
+while c<len(argv):
+	if argv[c].isdigit():argv[c:c+2]=(argv[c+1],)*int(argv[c])
+	elif argv[c][0]=="|":p+=argv.pop(c)
+	else:c+=1
+print("find "+" ".join(argv[1:])+p+">$t;exec xargs -a $t "+argv[0])' $@`
