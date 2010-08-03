@@ -1,0 +1,6 @@
+#!/bin/sh
+F=0
+while [ -f $1$F$2 ]
+do F=`expr $F + 1`
+done
+echo $1$F$2
