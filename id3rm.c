@@ -5,11 +5,11 @@
 #ifdef __BIG_ENDIAN__
 	#define TAG 0x54414700
 	#define ID3 0x49443300
-	#define LEN(x) (((x&0x7F000000)>>3)|((x&0x7F0000)>>2)|((x&0x7F00)>>1)|(x&0x7F))
+	#define LEN(x) ((x&0x7F000000)>>3|(x&0x7F0000)>>2|(x&0x7F00)>>1|x&0x7F)
 #else//__LITTLE_ENDIAN__
 	#define TAG 0x00474154
 	#define ID3 0x00334449
-	#define LEN(x) (((x&0x7F000000)>>24)|((x&0x7F0000)>>9)|((x&0x7F00)<<6)|((x&0x7F)<<21))
+	#define LEN(x) ((x&0x7F000000)>>24|(x&0x7F0000)>>9|(x&0x7F00)<<6|(x&0x7F)<<21)
 #endif
 int main(int argc,char**argv){
 	for(char**fn=argv+1;*fn;fn++){
@@ -33,7 +33,8 @@ int main(int argc,char**argv){
 		}else fseek(f,-128,SEEK_END);
 		buff=0;
 		fread(&buff,3,1,f);
-		truncate(*fn,ftell(f)+(buff==TAG?-3:125));
+		buff=ftell(f)+(buff==TAG?-3:125);
 		fclose(f);
+		truncate(*fn,buff);
 	}
 }

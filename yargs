@@ -8,10 +8,10 @@ argv=[{
 "p":"mplayer"}.get(c,c) for c in argv[1:] if c]
 p=""
 for c in range(len(argv)-3,-1,-1):
-	if argv[c]==",":argv[c:c+3]=argv[c+1]+argv[c+2]
+	if argv[c]==",":argv[c:c+3]=argv[c+1]+argv[c+2],
 while c<len(argv):
 	if argv[c].isdigit():argv[c:c+2]=(argv[c+1],)*int(argv[c])
 	elif argv[c][0]=="|":p+=argv.pop(c)
 	else:c+=1
-e=lambda x:"'\''"+"'\'\''".join(x).replace("'\'\'\''",chr(92)+chr(39))+"'\''"
+e=lambda x:"'\''"+"'\'\''".join(x).replace("'\'\'\''",chr(39)+chr(92))+"'\''"
 print("find "+" ".join(map(e,argv[1:]))+p+">$t;exec xargs -a $t "+e(argv[0]))' "$@"`
