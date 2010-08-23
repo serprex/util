@@ -14,6 +14,7 @@
 int main(int argc,char**argv){
 	for(char**fn=argv+1;*fn;fn++){
 		FILE*f=fopen(*fn,"rb+");
+		if(!f)continue;
 		uint32_t buff=0;
 		fread(&buff,3,1,f);
 		if(buff==ID3){
