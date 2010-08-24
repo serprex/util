@@ -1,0 +1,12 @@
+#!/bin/sh
+for a in "$@"
+do
+wget -qO - "http://repos.archlinux.org/wsvn/packages/`python -c 'from sys import argv
+if "." in argv[1]:argv[1]=argv[1][:argv[1].find(".")]
+while not argv[1].isalnum() and argv[1][-1] in "-0123456789":argv[1]=argv[1][:-1]
+print(argv[1])' "$a"`/trunk/?op=log"|python -c 'from sys import stdin
+b=a=stdin.read()
+while b:
+	b,b,a=a.partition('\''<td valign="middle" class="logmsg">'\'')
+	print(a[:a.find("</td>")].replace("<br />\n","\t"))' ``
+done
