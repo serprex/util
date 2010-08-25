@@ -14,4 +14,4 @@ while c<len(argv):
 	elif argv[c][0]=="|":p+=argv.pop(c)
 	else:c+=1
 e=lambda x:"'\''"+"'\'\''".join(x).replace("'\'\'\''",chr(39)+chr(92))+"'\''"
-print("find "+" ".join(map(e,argv[1:]))+" -print0"+p+">$t;exec xargs -0a $t "+e(argv[0]))' "$@"`
+print("find "+" ".join(map(e,argv[1:]))+" -type f -print0"+p+">$t;exec xargs -0a $t "+e(argv[0]))' "$@"`
