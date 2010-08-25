@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 from sys import argv
 with open(argv[1]) as a:a=a.read()
 b=a.find("APE""TAGEX")
@@ -6,5 +6,5 @@ if b+b<len(a):
 	if b!=-1:
 		c=a.find("APE""TAGEX",b+1)
 		if c!=-1:open(argv[1],"w").write(a[:b]+a[c+72:])
-		else:print argv[1],b
+		else:print("%s %c"%(argv[1],b))
 else:open(argv[1],"w").write(a[:b])
