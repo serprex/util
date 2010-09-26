@@ -1,0 +1,312 @@
+#!/bin/bash
+#Copyright 2004-2009 Jason Chu <jason@archlinux.org>
+#          2009-2010 Andrea Scarpino <andrea@archlinux.org>
+#This program is free software: you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation, either version 3 of the License, or
+#(at your option) any later version
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details
+#You should have received a copy of the GNU General Public License
+#along with this program.  If not, see <http://www.gnu.org/licenses/>
+declare -a args
+[ -f /etc/abs.conf ] && . /etc/abs.conf
+[ -f /etc/makepkg.conf ] && . /etc/makepkg.conf
+[ -f ~/.makepkg.conf ] && . ~/.makepkg.conf
+version(){
+	pacman -V
+	echo "                       srcpac v0.7"
+	echo "                       Copyright 2004 Jason Chu <jason@archlinux.org>"
+	echo "                                 2009 Andrea Scarpino <andrea@archlinux.org>"
+	exit 0
+}
+apply_config(){
+	conf="/etc/srcpac.d/${1}"
+	if [ -x ${conf} ]; then
+		if [ -z "${3}" ]
+		then sed -i -f ${conf} ${2}/PKGBUILD
+		elif [ -z "${PAGER}" ]
+		then sed -f ${conf} ${2}/PKGBUILD | less
+		else sed -f ${conf} ${2}/PKGBUILD | ${PAGER}
+		fi
+	fi
+}
+get_candidates(){
+	candidates=$(find ${ABSROOT} -type d -name ${1})
+	if [ -z "${candidates}" ]; then
+		echo "Error: Couldn't find \"${1}\" in ${ABSROOT}"
+		exit 1
+	fi
+}
+get_pkgname(){
+	local tmp=${1##*/}
+	tmp=${tmp%-$CARCH*}
+	tmp=${tmp%-any*}
+	echo -n ${tmp%-*-*}
+}
+refresh(){
+	if [ $REFRESH -gt 0 ]; then
+		abs
+		if [ $REFRESH = 1 ]
+		then pacman -Sy
+		else pacman -Syy
+		fi
+	fi
+}
+build_packages(){
+	while [ $# -gt 1 ]; do
+		get_candidates $2
+		success=0
+		for pkgdir in ${candidates}; do
+			if [ -f ${pkgdir}/PKGBUILD ]; then
+				builddir=/var/srcpac${pkgdir/${ABSROOT}//}
+				MAKEPKGOPTS="-c -s -r -f"
+				[[ -d ${builddir} ]] && rm -rf ${builddir}
+				mkdir -p ${builddir}
+				cp ${pkgdir}/* ${builddir}
+				apply_config $2 ${builddir}
+				cd ${builddir}
+				makepkg --asroot ${MAKEPKGOPTS}
+				ret=$?
+				if [ $ret -ne 0 ]; then
+					echo "Error: Failed to build \"$2\""
+					exit $ret
+				fi
+				if [ ! -z "$2" ]; then
+					pacargs="-U"
+					[ $NODEPS -eq 1 ] && pacargs="${pacargs}d"
+					[ $FORCE -eq 1 ] && pacargs="${pacargs}f"
+					[ -z $ROOT ] || pacargs="${pacargs}r $ROOT"
+					pacman $pacargs ${builddir}/*${PKGEXT}
+				fi
+			fi
+		done
+		unset MAKEPKGOPTS
+		if [ ! -z "$2" ]; then
+			[ -d /etc/srcpac.d ] || mkdir /etc/srcpac.d
+			touch /etc/srcpac.d/${packages[@]}
+			chmod +x /etc/srcpac.d/${packages[@]}
+		fi
+		shift
+	done
+}
+MAJOR=""
+FORCE=0
+ROOT=""
+NODEPS=0
+BUILD=0
+REFRESH=0
+SYSUPGRADE=0
+DOWNLOAD=0
+ONLYCONF=0
+IGNORE=0
+IGNOREPKG=""
+NOCONFIRM=0
+ARGLIST=$@
+ARGSANS=""
+if [ "$1" == "--help" -o "$1" == -h ]; then
+	pacman -h
+	echo "srcpac adds two -S options"
+	echo " a builds targets from source"
+	echo " o applies config and displays result without building"
+	exit 0
+fi
+while [ $# -ne 0 ]; do
+	case $1 in
+		--version) version ;;
+		--remove)
+			[ -z $MAJOR ] || exec pacman -SR
+			MAJOR="remove"
+			ARGSANS="$ARGSANS $1"
+			;;
+		--sync)
+			[ -z $MAJOR ] || exec pacman -SR
+			MAJOR="sync"
+			ARGSANS="$ARGSANS $1"
+			;;
+		--force)
+			FORCE=1
+			ARGSANS="$ARGSANS $1"
+			;;
+		--root)
+			ROOT="$2"
+			ARGSANS="$ARGSANS $1 $2"
+			shift
+			;;
+		--nodeps)
+			NODEPS=1
+			ARGSANS="$ARGSANS $1"
+			;;
+		--build)
+			BUILD=1
+			ARGSANS="$ARGSANS $1"
+			;;
+		--refresh)
+			REFRESH=$((REFRESH+1))
+			ARGSANS="$ARGSANS $1"
+			;;
+		--sysupgrade)
+			SYSUPGRADE=1
+			ARGSANS="$ARGSANS $1"
+			;;
+		--downloadonly)
+			DOWNLOAD=1
+			ARGSANS="$ARGSANS $1"
+			;;
+		--onlyconf)
+			ONLYCONF=1
+			ARGSANS="$ARGSANS $1"
+			;;
+		--ignore)
+			IGNORE=1
+			IGNOREPKG="$IGNOREPKG $2"
+			ARGSANS="$ARGSANS $1 $2"
+			shift
+			;;
+		--noconfirm)
+			NOCONFIRM=1
+			ARGSANS="$ARGSANS $1"
+			;;
+		--*) ARGSANS="$ARGSANS $1";;
+		-*)
+			ARGSANS="$ARGSANS $1"
+			[ $(echo -n $1 | grep r) ] && OPTIONAL=$2
+			OPTIND=1
+			while getopts ":VRUFSdfayur:eow" opt $1 $OPTIONAL; do
+				case $opt in
+					V) version;;
+					R) MAJOR="remove";;
+					S) MAJOR="sync";;
+					f) FORCE=1;;
+					r) ROOT="${OPTARG}";;
+					d) NODEPS=1;;
+					a) BUILD=1;;
+					y) REFRESH=$((REFRESH+1));;
+					u) SYSUPGRADE=1;;
+					w) DOWNLOAD=1;;
+					o) ONLYCONF=1;;
+				esac
+			done
+			;;
+		*) args[${#args[@]}]=$1;;
+	esac
+	shift
+done
+if [ ${UID} -ne 0 ]; then
+	echo "Error: Must be root"
+	exit 1
+fi
+if [ -z "${ABSROOT}" ]; then
+	echo "Error: ABSROOT undefined"
+	exit 1
+fi
+if [ -z "${MAJOR}" ]
+then pacman $ARGLIST
+elif [ "${MAJOR}" = "remove" ]; then
+	(if [ -d /etc/srcpac.d ]; then
+		for pkg in $(find /etc/srcpac.d -type f | sed s,.*/,,)
+		do [ -z "$(pacman -Q $pkg)" ] && chmod -x /etc/srcpac.d/${pkg}
+		done
+	fi)2>/dev/null&
+	pacman $ARGLIST
+elif [ "${MAJOR}" = "sync" ]; then
+	if [ $BUILD -eq 0 -a $ONLYCONF -eq 0 ]; then
+		if [ $SYSUPGRADE -eq 1 -a -d /etc/srcpac.d ]; then
+			refresh
+			[ $IGNORE -eq 1 ] && ignorestr="--ignore $IGNOREPKG"
+			output=$(pacman -Spu --noconfirm ${ignorestr})
+			ret=$?
+			if [ $ret -ne 0 ]; then
+				echo -n $output
+				exit $ret
+			fi
+			declare -a packages
+			for line in $output
+			do [ $( echo "${line}" | grep -F '://' ) ] && packages[${#packages[@]}]=$(get_pkgname ${line})
+			done
+			[ ${#packages[@]} -eq 0 ] && exit 0
+			declare -a sourcepac
+			declare -a regpac
+			for pkg in ${packages[@]}; do
+				if [ -f /etc/srcpac.d/${pkg} ]
+				then sourcepac[${#sourcepac[@]}]=$pkg
+				else regpac[${#regpac[@]}]=$pkg
+				fi
+			done
+			pacargs="-S"
+			[ $NODEPS -eq 1 ] && pacargs="${pacargs}d"
+			[ $FORCE -eq 1 ] && pacargs="${pacargs}f"
+			[ -z $ROOT ] || pacargs="${pacargs}r $ROOT"
+			pacman $pacargs ${regpac[*]} $ignorestr
+			[ ${#sourcepac[@]} -eq 0 ] && exit 0
+			echo "Source Targets: ${sourcepac[*]}"
+			if [ ${NOCONFIRM} -eq 0 ]; then
+				echo -n "Proceed? [Y/n] "
+				read
+				[ "${REPLY}" != "y" -a "${REPLY}" != "Y" -a ! -z "${REPLY}" ] && exit 0
+			fi
+			build_packages ${sourcepac[@]} install
+		else
+			[ $REFRESH -gt 0 ] && abs
+			pacman $ARGLIST
+		fi
+	else
+		refresh
+		if [ $DOWNLOAD -eq 1 ]; then
+			build_packages ${args[@]}
+			exit 0
+		fi
+		if [ $SYSUPGRADE -eq 1 ]
+		then output=$(pacman -Spu --noconfirm)
+		else output=$(pacman -Sp ${args[*]} --noconfirm)
+		fi
+		ret=$?
+		if [ $ret -ne 0 ]; then
+			echo -n $output
+			exit $ret
+		fi
+		declare -a packages
+		for line in ${args[*]}
+		do [ -x /etc/srcpac.d/$line ] || packages[${#packages[@]}]=$line
+		done
+		for line in $output; do
+			if [ $( echo "${line}" | grep -F '://' ) ]; then
+				line=$(get_pkgname ${line})
+				[ -x /etc/srcpac.d/$line ] && packages[${#packages[@]}]=$line
+			fi
+		done
+		[ ${#packages[@]} -eq 0 ] && exit 0
+		[ -d /etc/srcpac.d ] || mkdir /etc/srcpac.d
+		for pkg in ${packages[@]}; do
+			touch /etc/srcpac.d/${packages[@]}
+			chmod +x /etc/srcpac.d/${packages[@]}
+		done
+		if [ $ONLYCONF -eq 1 ]; then
+			for pkg in ${packages[@]}; do
+				get_candidates $pkg
+				success=0
+				for pkgdir in ${candidates}; do
+					if [ -f ${pkgdir}/PKGBUILD ]; then
+						apply_config $pkg $pkgdir noreplace
+						success=1
+						break
+					fi
+				done
+				if [ ${success} -eq 0 ]; then
+					echo "Error: Failed to find \"${pkg}\""
+					exit 1
+				fi
+			done
+		else
+			echo "Source Targets: ${packages[*]}"
+			if [ ${NOCONFIRM} -eq 0 ]; then
+				echo -n "Proceed? [Y/n] "
+				read
+				[ "${REPLY}" != "y" -a "${REPLY}" != "Y" -a "${REPLY}" != "" ] && exit 0
+			fi
+			build_packages ${packages[@]} install
+		fi
+	fi
+fi

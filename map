@@ -1,6 +1,6 @@
 #!/bin/sh
-c=$1
+c="$1"
 shift
 for a in "$@"
-do $c $a
+do "$c" "$a"
 done

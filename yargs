@@ -4,7 +4,7 @@ eval `python -c 'from sys import argv
 argv=[{
 "r":"|sort -Rz",
 "s":"|sort -z",
-"m":"/root/Musique/",
+"m":"/root/m/",
 "p":"mplayer"}.get(c,c) for c in argv[1:] if c]
 p=""
 for c in range(len(argv)-3,-1,-1):
