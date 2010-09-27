@@ -57,8 +57,9 @@ refresh(){
 }
 build_packages(){
 	while [ $# -gt 1 ]; do
-		get_candidates $2
+		get_candidates $1
 		success=0
+		MKPKGOPTS=$MAKEPKGOPTS
 		for pkgdir in ${candidates}; do
 			if [ -f ${pkgdir}/PKGBUILD ]; then
 				builddir=/var/srcpac${pkgdir/${ABSROOT}//}
@@ -66,12 +67,12 @@ build_packages(){
 				[[ -d ${builddir} ]] && rm -rf ${builddir}
 				mkdir -p ${builddir}
 				cp ${pkgdir}/* ${builddir}
-				apply_config $2 ${builddir}
+				apply_config $1 ${builddir}
 				cd ${builddir}
 				makepkg --asroot ${MAKEPKGOPTS}
 				ret=$?
 				if [ $ret -ne 0 ]; then
-					echo "Error: Failed to build \"$2\""
+					echo "Error: Failed to build \"$1\""
 					exit $ret
 				fi
 				if [ ! -z "$2" ]; then
@@ -83,7 +84,7 @@ build_packages(){
 				fi
 			fi
 		done
-		unset MAKEPKGOPTS
+		MAKEPKGOPTS=$MKPKGOPTS
 		if [ ! -z "$2" ]; then
 			[ -d /etc/srcpac.d ] || mkdir /etc/srcpac.d
 			touch /etc/srcpac.d/${packages[@]}
@@ -224,7 +225,7 @@ elif [ "${MAJOR}" = "sync" ]; then
 			fi
 			declare -a packages
 			for line in $output
-			do [ $( echo "${line}" | grep -F '://' ) ] && packages[${#packages[@]}]=$(get_pkgname ${line})
+			do [ $( echo -n "${line}" | grep -F '://' ) ] && packages[${#packages[@]}]=$(get_pkgname ${line})
 			done
 			[ ${#packages[@]} -eq 0 ] && exit 0
 			declare -a sourcepac
@@ -272,7 +273,7 @@ elif [ "${MAJOR}" = "sync" ]; then
 		do [ -x /etc/srcpac.d/$line ] || packages[${#packages[@]}]=$line
 		done
 		for line in $output; do
-			if [ $( echo "${line}" | grep -F '://' ) ]; then
+			if [ $( echo -n "${line}" | grep -F '://' ) ]; then
 				line=$(get_pkgname ${line})
 				[ -x /etc/srcpac.d/$line ] && packages[${#packages[@]}]=$line
 			fi
