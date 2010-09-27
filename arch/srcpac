@@ -101,7 +101,6 @@ BUILD=0
 REFRESH=0
 SYSUPGRADE=0
 DOWNLOAD=0
-ONLYCONF=0
 IGNORE=0
 IGNOREPKG=""
 NOCONFIRM=0
@@ -109,9 +108,7 @@ ARGLIST=$@
 ARGSANS=""
 if [ "$1" == "--help" -o "$1" == -h ]; then
 	pacman -h
-	echo "srcpac adds two -S options"
-	echo " a builds targets from source"
-	echo " o applies config and displays result without building"
+	echo "srcpac adds --abs/-a to -S"
 	exit 0
 fi
 while [ $# -ne 0 ]; do
@@ -140,7 +137,7 @@ while [ $# -ne 0 ]; do
 			NODEPS=1
 			ARGSANS="$ARGSANS $1"
 			;;
-		--build)
+		--abs)
 			BUILD=1
 			ARGSANS="$ARGSANS $1"
 			;;
@@ -154,10 +151,6 @@ while [ $# -ne 0 ]; do
 			;;
 		--downloadonly)
 			DOWNLOAD=1
-			ARGSANS="$ARGSANS $1"
-			;;
-		--onlyconf)
-			ONLYCONF=1
 			ARGSANS="$ARGSANS $1"
 			;;
 		--ignore)
@@ -187,7 +180,6 @@ while [ $# -ne 0 ]; do
 					y) REFRESH=$((REFRESH+1));;
 					u) SYSUPGRADE=1;;
 					w) DOWNLOAD=1;;
-					o) ONLYCONF=1;;
 				esac
 			done
 			;;
@@ -213,7 +205,7 @@ elif [ "${MAJOR}" = "remove" ]; then
 	fi)2>/dev/null&
 	pacman $ARGLIST
 elif [ "${MAJOR}" = "sync" ]; then
-	if [ $BUILD -eq 0 -a $ONLYCONF -eq 0 ]; then
+	if [ $BUILD -eq 0 ]; then
 		if [ $SYSUPGRADE -eq 1 -a -d /etc/srcpac.d ]; then
 			refresh
 			[ $IGNORE -eq 1 ] && ignorestr="--ignore $IGNOREPKG"
@@ -284,30 +276,12 @@ elif [ "${MAJOR}" = "sync" ]; then
 			touch /etc/srcpac.d/${packages[@]}
 			chmod +x /etc/srcpac.d/${packages[@]}
 		done
-		if [ $ONLYCONF -eq 1 ]; then
-			for pkg in ${packages[@]}; do
-				get_candidates $pkg
-				success=0
-				for pkgdir in ${candidates}; do
-					if [ -f ${pkgdir}/PKGBUILD ]; then
-						apply_config $pkg $pkgdir noreplace
-						success=1
-						break
-					fi
-				done
-				if [ ${success} -eq 0 ]; then
-					echo "Error: Failed to find \"${pkg}\""
-					exit 1
-				fi
-			done
-		else
-			echo "Source Targets: ${packages[*]}"
-			if [ ${NOCONFIRM} -eq 0 ]; then
-				echo -n "Proceed? [Y/n] "
-				read
-				[ "${REPLY}" != "y" -a "${REPLY}" != "Y" -a "${REPLY}" != "" ] && exit 0
-			fi
-			build_packages ${packages[@]} install
+		echo "Source Targets: ${packages[*]}"
+		if [ ${NOCONFIRM} -eq 0 ]; then
+			echo -n "Proceed? [Y/n] "
+			read
+			[ "${REPLY}" != "y" -a "${REPLY}" != "Y" -a "${REPLY}" != "" ] && exit 0
 		fi
+		build_packages ${packages[@]} install
 	fi
 fi
