@@ -1,9 +1,10 @@
 #!/bin/sh
-if [ -z $2 ]
-then lame -V4 "$1" "$1."
-else lame $2 "$1" "$1."
+for f in "$@"
+do if [ -f "$f" ]
+then lame -V4 "$f" "$f."
+if [ `stat -c %s "$f"` -gt `stat -c %s "$f."` ]
+then mv -f "$f." "$f"
+else rm "$f."
 fi
-if [ `stat -c %s "$1"` -gt `stat -c %s "$1."` ]
-then mv -f "$1." "$1"
-else rm "$1."
 fi
+done
