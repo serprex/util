@@ -1,10 +1,9 @@
 #!/bin/sh
 t=`mktemp`
-eval `python -c 'from sys import argv
+eval find\ `python -c 'from sys import argv
 argv=[{
 "r":"|sort -Rz",
 "s":"|sort -z",
-"m":"/root/m/",
 "p":"mplayer"}.get(c,c) for c in argv[1:] if c]
 p=""
 for c in range(len(argv)-3,-1,-1):
@@ -13,5 +12,5 @@ while c<len(argv):
 	if argv[c].isdigit():argv[c:c+2]=(argv[c+1],)*int(argv[c])
 	elif argv[c][0]=="|":p+=argv.pop(c)
 	else:c+=1
-e=lambda x:"'\''"+"'\'\''".join(x).replace("'\'\'\''",chr(39)+chr(92))+"'\''"
-print("find "+" ".join(map(e,argv[1:]))+" -type f -print0"+p+">$t;exec xargs -0a $t "+e(argv[0]))' "$@"`
+e=lambda x:"'\''"+"'\'\''".join(x).replace("'\'\'\''","\x27\x5c")+"'\''"
+print(" ".join(map(e,argv[1:]))+" -type f -print0"+p+">$t;exec xargs -0a $t "+e(argv[0]))' "$@"`
