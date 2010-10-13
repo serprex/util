@@ -1,6 +1,8 @@
 #!/bin/sh
 t=`mktemp`
 eval find\ `python -c 'from sys import argv
+for c in range(len(argv)):
+	if argv[c][0]=="-":argv[c:c+1]=argv[c][1:]
 argv=[{
 "r":"|sort -Rz",
 "s":"|sort -z",
