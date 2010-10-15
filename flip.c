@@ -4,14 +4,14 @@ int main(int argc,char**argv){
 	char*argv1,*temp=tmpnam(0);
 	if(argc<3) puts("u NIX\nd DOS\nm MAC\n? ???\nsn \\t->n spaces\ntn n spaces->\\t");
 	else for(int ch,i=(argv1=argv[1]+(argv[1][0]=='-'),2);i<argc;i++){
-		FILE*rame=fopen(argv[i],"rb");
+		FILE*rame=fopen(argv[i],"rb+");
 		if(!rame) printf("? %s\n",argv[i]);
 		else if(argv1[0]=='?'){
 			while((ch=getc(rame))!=0xa&&ch!=0xd&&ch!=EOF);
 			printf("%s: %s\n",argv[i],ch==0xa?"NIX":ch==EOF?"???":(getc(rame)==0xa?"DOS":"MAC"));
 			fclose(rame);
 		}else if(argv1[0]=='d'||argv1[0]=='m'||argv1[0]=='u'||argv1[0]=='s'||argv1[0]=='t'){
-			FILE*wame=fopen(temp,"wb");
+			FILE*wame=fopen(temp,"wb+");
 			int ch0d=0;
 			while((ch=getc(rame))!=EOF){
 				switch(argv1[0]){
@@ -40,10 +40,13 @@ int main(int argc,char**argv){
 				}
 				ch0d=ch==0xd;
 			}
+			char a[ftell(wame)];
+			rewind(wame);
+			fread(a,1,sizeof(a),wame);
 			fclose(wame);
+			rewind(rame);
+			fwrite(a,1,sizeof(a),rame);
 			fclose(rame);
-			remove(argv[i]);
-			rename(temp,argv[i]);
 		}
 	}
 }

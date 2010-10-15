@@ -27,18 +27,10 @@ get_pkgname(){
 	tmp=${tmp%-any*}
 	echo -n ${tmp%-*-*}
 }
-refresh(){
-	if [ $REFRESH ]; then
-		abs>/dev/null&
-		pid=$!
-		pacman "-S$REFRESH"
-		wait $pid
-	fi
-}
 build_packages(){
 	while [ $# -gt 1 ]; do
 		candidates=$(find "$ABSROOT" -type d -name "$1")
-		if [ "$candidates" ]; then
+		if [ -z "$candidates" ]; then
 			echo "Error: Couldn't find $1 in $ABSROOT"
 			exit 1
 		fi
@@ -48,11 +40,11 @@ build_packages(){
 			do if [ -f ${pkgdir}/PKGBUILD ];then
 				builddir=/var/srcpac${pkgdir/${ABSROOT}//}
 				MAKEPKGOPTS="-c -s -r -f"
-				[ -d ${builddir} ] && rm -r ${builddir}
+				[ -d ${builddir} ] || rm -r ${builddir}
 				mkdir -p ${builddir}
 				cd ${builddir}
 				cp -r ${pkgdir}/* .
-				[ -x "/etc/srcpac.d/$1" ] && sed -i -f "/etc/srcpac.d/$1}" PKGBUILD
+				[ -x "/etc/srcpac.d/$1" ] && sed -i -f "/etc/srcpac.d/$1" PKGBUILD
 				makepkg --asroot ${MAKEPKGOPTS}
 				ret=$?
 				if [ $ret != 0 ];then
@@ -156,22 +148,21 @@ done
 [ "$ABSROOT" -a ${UID} = 0 ] || echo "ABSROOT undefined or not root"
 [ -d /etc/srcpac.d ] || mkdir /etc/srcpac.d
 case $MAJOR in
-0)exec pacman $ARGLIST;;
 1)
 	(for pkg in $(find /etc/srcpac.d -type f |sed s,.*/,,)
 	do chmod -x /etc/srcpac.d/$pkg
-	done)2>/dev/null&
-	exec pacman $ARGLIST;;
+	done)2>/dev/null&;;
 2)
+	[ $REFRESH ] && abs>/dev/null&pid=$!
 	if [ $BUILD = 1 ];then
-		refresh
+		if [ $REFRESH ];then
+			pacman "-S$REFRESH"
+			wait $pid
+		fi
 		if [ $DOWNLOAD = 1 ]
 		then build_packages ${args[@]}
 		else
-			if [ $SYSUPGRADE = 1 ]
-			then output=$(pacman -Spu --noconfirm)
-			else output=$(pacman -Sp ${args[*]} --noconfirm)
-			fi
+			output=$(pacman -Sp ${args[*]} --noconfirm)
 			ret=$?
 			if [ $ret != 0 ];then
 				echo -n $output
@@ -198,44 +189,13 @@ case $MAJOR in
 			fi
 			build_packages ${srcpac[@]} install
 		fi
+		exit
 	elif [ $SYSUPGRADE = 1 -a -d /etc/srcpac.d ];then
-		refresh
-		[ "$IGNORE" ] && ignorepkg="--ignore $IGNORE"
-		output=$(pacman -Spu --noconfirm ${ignorepkg})
-		ret=$?
-		if [ $ret != 0 ];then
-			echo -n $output
-			exit $ret
-		fi
-		declare -a packages
-		for line in $output
-		do [ $(echo -n "${line}" |grep -F '://') ] && packages[${#packages[@]}]=$(get_pkgname ${line})
-		done
-		[ ${#packages[@]} = 0 ] && exit 0
-		regpac=""
-		for pkg in ${packages[@]}
-			do if [ -x /etc/srcpac.d/"$pkg" ]
-			then srcpac[${#srcpac[@]}]="$pkg"
-			else regpac="$regpac $pkg"
-			fi
-		done
-		pacargs="-S"
-		[ $NODEPS = 0 ] || pacargs="$pacargs"d
-		[ $FORCE = 0 ] || pacargs="$pacargs"f
-		[ "$ROOT" ] && pacargs="${pacargs}r $ROOT"
-		[ "$regpac" ] && pacman $pacargs $regpac $ignorepkg
-		[ ${#srcpac[@]} = 0 ] && exit 0
-		echo "Source Targets: ${srcpac[*]}"
-		if [ $NOCONFIRM = 0 ];then
-			read -p "Proceed? Y/n " -n 1
-			[ "$REPLY" = "n" -o "$REPLY" = "N" ] && exit 0
-		fi
-		build_packages ${srcpac[@]} install
-	elif [ $REFRESH ];then
-		abs
-		pid=$!
-		pacman $ARGLIST
-		wait $pid
-	else exec pacman $ARGLIST
+		cd /etc/srcpac.d
+		pacman $ARGLIST --ignore $(echo *|sed s/\ /,/g)
+		[ $REFRESH ] && wait $pid
+		exit
 	fi;;
 esac
+pacman $ARGLIST
+[ -z $pid ] && wait $pid
