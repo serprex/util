@@ -51,7 +51,7 @@ build_packages(){
 					echo "Error: Failed to build $1"
 					exit $ret
 				fi
-				if [ "$2" ];then
+				if [ $DOWNLOAD = 0 ];then
 					pacargs="-U"
 					[ $NODEPS = 0 ] || pacargs="${pacargs}d"
 					[ $FORCE = 0 ] || pacargs="${pacargs}f"
@@ -187,7 +187,7 @@ case $MAJOR in
 				read -p "Proceed? Y/n " -n 1
 				[ "$REPLY" = "n" -o "$REPLY" = "N" ] && exit 0
 			fi
-			build_packages ${srcpac[@]} install
+			build_packages ${srcpac[@]}
 		fi
 		exit
 	elif [ $SYSUPGRADE = 1 -a -d /etc/srcpac.d ];then
