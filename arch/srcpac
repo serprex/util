@@ -28,7 +28,7 @@ get_pkgname(){
 	echo -n ${tmp%-*-*}
 }
 build_packages(){
-	while [ $# -gt 1 ]; do
+	while [ $# != 0 ]; do
 		candidates=$(find "$ABSROOT" -type d -name "$1")
 		if [ -z "$candidates" ]; then
 			echo "Error: Couldn't find $1 in $ABSROOT"
@@ -40,7 +40,7 @@ build_packages(){
 			do if [ -f ${pkgdir}/PKGBUILD ];then
 				builddir=/var/srcpac${pkgdir/${ABSROOT}//}
 				MAKEPKGOPTS="-c -s -r -f"
-				[ -d ${builddir} ] || rm -r ${builddir}
+				[ -d ${builddir} ] && rm -r ${builddir}
 				mkdir -p ${builddir}
 				cd ${builddir}
 				cp -r ${pkgdir}/* .
@@ -56,8 +56,7 @@ build_packages(){
 					[ $NODEPS = 0 ] || pacargs="${pacargs}d"
 					[ $FORCE = 0 ] || pacargs="${pacargs}f"
 					[ "$ROOT" ] || pacargs="${pacargs}r $ROOT"
-					pacman $pacargs ${builddir}/*${PKGEXT}
-					rm -r /var/srcpac
+					pacman $pacargs *$PKGEXT
 				fi
 			fi
 		done
