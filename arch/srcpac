@@ -73,57 +73,31 @@ BUILD=0
 REFRESH=""
 SYSUPGRADE=0
 DOWNLOAD=0
-IGNORE=""
 NOCONFIRM=0
 ARGLIST=$@
-ARGSANS=""
 while [ $# != 0 ]
 	do case "$1" in
 	--version)version;;
 	--remove)
 		[ $MAJOR = 0 ] || exec pacman -SR
-		MAJOR=1
-		ARGSANS="$ARGSANS $1";;
+		MAJOR=1;;
 	--sync)
 		[ $MAJOR = 0 ] || exec pacman -SR
-		MAJOR=2
-		ARGSANS="$ARGSANS $1";;
-	--force)
-		FORCE=1
-		ARGSANS="$ARGSANS $1";;
+		MAJOR=2;;
+	--force)FORCE=1;;
 	--root)
 		ROOT="$2"
-		ARGSANS="$ARGSANS $1 $2"
 		shift;;
-	--nodeps)
-		NODEPS=1
-		ARGSANS="$ARGSANS $1";;
-	--abs)
-		BUILD=1
-		ARGSANS="$ARGSANS $1";;
-	--refresh)
-		REFRESH="$REFRESH"y
-		ARGSANS="$ARGSANS $1";;
-	--sysupgrade)
-		SYSUPGRADE=1
-		ARGSANS="$ARGSANS $1";;
-	--downloadonly)
-		DOWNLOAD=1
-		ARGSANS="$ARGSANS $1"
-		;;
-	--ignore)
-		IGNORE="$IGNORE $2"
-		ARGSANS="$ARGSANS $1 $2"
-		shift;;
-	--noconfirm)
-		NOCONFIRM=1
-		ARGSANS="$ARGSANS $1";;
-	--*)ARGSANS="$ARGSANS $1";;
+	--nodeps)NODEPS=1;;
+	--abs)BUILD=1;;
+	--refresh)REFRESH="$REFRESH"y;;
+	--sysupgrade)SYSUPGRADE=1;;
+	--downloadonly)DOWNLOAD=1;;
+	--noconfirm)NOCONFIRM=1;;
 	-*)
-		ARGSANS="$ARGSANS $1"
 		[ $(echo -n $1 |grep r) ] && OPTIONAL=$2
 		OPTIND=1
-		while getopts ":VRUFSdfayur:eow" opt $1 $OPTIONAL
+		while getopts ":VRSfayur:w" opt $1 $OPTIONAL
 			do case $opt in
 			V)version;;
 			R)
@@ -177,9 +151,9 @@ if [ $MAJOR = 2 ];then
 				touch /etc/srcpac.d/"$pkg"
 				chmod +x /etc/srcpac.d/"$pkg"
 			done
-			echo "Source Targets: ${srcpac[*]}"
+			echo ${srcpac[*]}
 			if [ $NOCONFIRM = 0 ];then
-				read -p "Proceed? Y/n " -n 1
+				read -p "Build? Y/n "
 				[ "$REPLY" = "n" -o "$REPLY" = "N" ] && exit 0
 			fi
 			build_packages ${srcpac[@]}
@@ -193,9 +167,9 @@ if [ $MAJOR = 2 ];then
 	fi
 fi
 pacman $ARGLIST
-if [ $MAJOR = 1 ];then
-	(for pkg in $(find /etc/srcpac.d -type f |sed s,.*/,,)
-	do [ -z $(pacman -Q $pkg) ] && chmod -x /etc/srcpac.d/$pkg
-	done)2>/dev/null&
+if [ $MAJOR = 1 ]
+then for pkg in $(find /etc/srcpac.d -type f |sed s,.*/,,)
+do [ -z $(pacman -Q $pkg 2>/dev/null) ] && chmod -x /etc/srcpac.d/$pkg
+done
 fi
 [ -z $pid ] && wait $pid

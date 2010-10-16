@@ -4,7 +4,7 @@ int main(int argc,char**argv){
 	char*argv1,*temp=tmpnam(0);
 	if(argc<3) puts("u NIX\nd DOS\nm MAC\n? ???\nsn \\t->n spaces\ntn n spaces->\\t");
 	else for(int ch,i=(argv1=argv[1]+(argv[1][0]=='-'),2);i<argc;i++){
-		FILE*rame=fopen(argv[i],"rb+");
+		FILE*rame=fopen(argv[i],"rb");
 		if(!rame) printf("? %s\n",argv[i]);
 		else if(argv1[0]=='?'){
 			while((ch=getc(rame))!=0xa&&ch!=0xd&&ch!=EOF);
@@ -44,7 +44,8 @@ int main(int argc,char**argv){
 			rewind(wame);
 			fread(a,1,sizeof(a),wame);
 			fclose(wame);
-			rewind(rame);
+			fclose(rame);
+			fopen(rame,"wb");
 			fwrite(a,1,sizeof(a),rame);
 			fclose(rame);
 		}
