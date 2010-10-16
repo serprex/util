@@ -147,12 +147,7 @@ while [ $# != 0 ]
 done
 [ "$ABSROOT" -a ${UID} = 0 ] || echo "ABSROOT undefined or not root"
 [ -d /etc/srcpac.d ] || mkdir /etc/srcpac.d
-case $MAJOR in
-1)
-	(for pkg in $(find /etc/srcpac.d -type f |sed s,.*/,,)
-	do chmod -x /etc/srcpac.d/$pkg
-	done)2>/dev/null&;;
-2)
+if [ $MAJOR = 2 ];then
 	[ $REFRESH ] && abs>/dev/null&pid=$!
 	if [ $BUILD = 1 ];then
 		if [ $REFRESH ];then
@@ -195,7 +190,12 @@ case $MAJOR in
 		pacman $ARGLIST --ignore $(echo *|sed s/\ /,/g)
 		[ $REFRESH ] && wait $pid
 		exit
-	fi;;
-esac
+	fi
+fi
 pacman $ARGLIST
+if [ $MAJOR = 1 ];then
+	(for pkg in $(find /etc/srcpac.d -type f |sed s,.*/,,)
+	do [ -z $(pacman -Q $pkg) ] && chmod -x /etc/srcpac.d/$pkg
+	done)2>/dev/null&
+fi
 [ -z $pid ] && wait $pid
