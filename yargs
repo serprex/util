@@ -18,5 +18,5 @@ while c<len(argv):
 e=lambda x:"'\''"+"'\'\''".join(x).replace("'\'\'\''","\x27\x5c")+"'\''"
 print(" ".join(map(e,argv[1:]))+" -type f -print0"+p+">$t;exec xargs -0a $t "+e(argv[0]))' "$@"`
 else find m -type f -print0|sort -Rz>$t
-xargs -0a $t mplayer
+exec xargs -0a $t mplayer
 fi
