@@ -34,18 +34,15 @@ build_packages(){
 			echo "Error: Couldn't find $1 in $ABSROOT"
 			exit 1
 		fi
-		success=0
-		MKPKGOPTS=$MAKEPKGOPTS
 		for pkgdir in ${candidates}
 			do if [ -f ${pkgdir}/PKGBUILD ];then
 				builddir=/var/srcpac${pkgdir/${ABSROOT}//}
-				MAKEPKGOPTS="-c -s -r -f"
 				[ -d ${builddir} ] && rm -r ${builddir}
 				mkdir -p ${builddir}
 				cd ${builddir}
 				cp -r ${pkgdir}/* .
 				[ -x "/etc/srcpac.d/$1" ] && sed -i -f "/etc/srcpac.d/$1" PKGBUILD
-				makepkg --asroot ${MAKEPKGOPTS}
+				makepkg --asroot -c -s -r -f
 				ret=$?
 				if [ $ret != 0 ];then
 					echo "Error: Failed to build $1"
@@ -53,14 +50,16 @@ build_packages(){
 				fi
 				if [ $DOWNLOAD = 0 ];then
 					pacargs="-U"
-					[ $NODEPS = 0 ] || pacargs="${pacargs}d"
-					[ $FORCE = 0 ] || pacargs="${pacargs}f"
-					[ "$ROOT" ] || pacargs="${pacargs}r $ROOT"
+					[ $NODEPS = 0 ] || pacargs="$pacargs"d
+					[ $FORCE = 0 ] || pacargs="$pacargs"f
+					[ "$ROOT" ] && pacargs="${pacargs}r $ROOT"
 					pacman $pacargs *$PKGEXT
+					mv *$PKGEXT /var/cache/pacman/pkg
+					cd ..
+					rm -r ${builddir}
 				fi
 			fi
 		done
-		MAKEPKGOPTS=$MKPKGOPTS
 		shift
 	done
 }
@@ -72,7 +71,6 @@ BUILD=0
 REFRESH=""
 SYSUPGRADE=0
 DOWNLOAD=0
-NOCONFIRM=0
 ARGLIST=$@
 while [ $# != 0 ]
 	do case "$1" in
@@ -92,7 +90,6 @@ while [ $# != 0 ]
 	--refresh)REFRESH="$REFRESH"y;;
 	--sysupgrade)SYSUPGRADE=1;;
 	--downloadonly)DOWNLOAD=1;;
-	--noconfirm)NOCONFIRM=1;;
 	-*)
 		[ $(echo -n $1 |grep r) ] && OPTIONAL=$2
 		OPTIND=1
@@ -151,10 +148,6 @@ if [ $MAJOR = 2 ];then
 				chmod +x /etc/srcpac.d/"$pkg"
 			done
 			echo ${srcpac[*]}
-			if [ $NOCONFIRM = 0 ];then
-				read -p "Build? Y/n "
-				[ "$REPLY" = "n" -o "$REPLY" = "N" ] && exit 0
-			fi
 			build_packages ${srcpac[@]}
 		fi
 		exit
@@ -168,7 +161,7 @@ fi
 pacman $ARGLIST
 if [ $MAJOR = 1 ]
 then for pkg in $(find /etc/srcpac.d -type f |sed s,.*/,,)
-do [ -z $(pacman -Q $pkg 2>/dev/null) ] && chmod -x /etc/srcpac.d/$pkg
+do [ "$(pacman -Q $pkg 2>/dev/null)" ] || chmod -x /etc/srcpac.d/$pkg
 done
 fi
 [ -z $pid ] && wait $pid

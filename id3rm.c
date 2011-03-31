@@ -6,7 +6,7 @@
 	#define TAG 0x54414700
 	#define ID3 0x49443300
 	#define LEN(x) ((x&0x7F000000)>>3|(x&0x7F0000)>>2|(x&0x7F00)>>1|x&0x7F)
-#else//__LITTLE_ENDIAN__
+#else
 	#define TAG 0x00474154
 	#define ID3 0x00334449
 	#define LEN(x) ((x&0x7F000000)>>24|(x&0x7F0000)>>9|(x&0x7F00)<<6|(x&0x7F)<<21)
@@ -15,7 +15,7 @@ int main(int argc,char**argv){
 	for(char**fn=argv+1;*fn;fn++){
 		FILE*f=fopen(*fn,"rb+");
 		if(!f)continue;
-		uint32_t buff=0;
+		uint32_t buff=0,buf2;
 		fread(&buff,3,1,f);
 		if(buff==ID3){
 			fseek(f,3,SEEK_CUR);
@@ -32,10 +32,9 @@ int main(int argc,char**argv){
 			free(temp);
 			fseek(f,-128,SEEK_CUR);
 		}else fseek(f,-128,SEEK_END);
-		buff=0;
-		fread(&buff,3,1,f);
-		buff=ftell(f)+(buff==TAG?-3:125);
+		fread(&buf2,3,1,f);
+		buf2=ftell(f)+(buf2==TAG?-3:125);
 		fclose(f);
-		truncate(*fn,buff);
+		truncate(*fn,buf2);
 	}
 }
