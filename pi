@@ -1,9 +1,10 @@
 #!/usr/bin/python
 def pi(pi):
 	from sys import argv
+	if len(argv)==1:return print(pi)
 	i,p=-1,True
 	pi=pi.replace(" ","").replace("\n","")
-	a="".join(a for a in input() if a.isdigit())
+	a="".join(a for a in argv[1] if a.isdigit())
 	for s in range(len(a),0,-1):
 		f=pi.find(a[:s])
 		if f!=-1:break
@@ -12,8 +13,7 @@ def pi(pi):
 		print(i+1,c," ",c[0]==c[1],"" if c[0]==c[1] else "!!!")
 		p&=c[0]==c[1]
 	if p:print("Perfect",i+1,"" if f==0 else "from %d"%f)
-pi("""
-3
+pi("""3
 141592 653589 793238 462643 383279 502884
 197169 399375 105820 974944 592307 816406
 286208 998628 034825 342117 067982 148086
@@ -35,5 +35,4 @@ pi("""
 721468 440901 224953 430146 549585 371050
 792279 689258 923542 019956 112129 021960
 864034 418159 813629 774771 309960 518707
-211349 99999
-""")
+211349 99999""")
