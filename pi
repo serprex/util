@@ -27,16 +27,16 @@ def pr(*x):exit(print(*x))
 if len(argv)==1:pr(p)
 p=p.replace(" ","").replace("\n","")
 a="".join(a for a in argv[1] if a.isdigit())
+if not a:pr("???")
 for s in range(len(a),0,-1):
 	f=p.find(a[:s])
 	if f!=-1:break
-else:pr("???")
-if s==len(a):pr("Perfect %d %s"%(s,("" if f==0 else "from %d"%f)))
+if s==len(a):pr("Perfect %d"%s+("" if f==0 else " from %d"%f))
 i=-1
 r=0
-for i,c in enumerate(zip(a,p[f:])):
-	if c[0]==c[1]:print(f+i,c[0])
+for i,c in enumerate(zip(a,p[f:]),f):
+	if c[0]==c[1]:print(i,c[0])
 	else:
-		print(f+i,c,"!!!")
+		print(i,c,"!!!")
 		r+=1
-pr("%d out of %d"%(len(a)-r,i+1))
+pr("%d out of %d"%(len(a)-r,len(a))+("" if f==0 else " from %d"%f))
