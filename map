@@ -1,0 +1,6 @@
+#!/bin/sh
+c="$1"
+shift
+for a in "$@"
+do "$c" "$a"
+done

@@ -1,0 +1,8 @@
+#!/bin/bash
+for a in $(find "$1" -type f")
+do a=${a:${#$1}}
+[ -f "$2/$a" -o $(md5sum "$1/$a") != $(md5sum "$2/$a") ] && cp "$1/$a" "$2/$a"
+done
+for a in $(find "$2" -type f)
+do [ -f "$1/$a" ] || rm "$2/$a"
+done
