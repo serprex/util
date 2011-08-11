@@ -31,7 +31,7 @@ if not a:pr("???")
 for s in range(len(a),0,-1):
 	f=p.find(a[:s])
 	if f!=-1:break
-if s==len(a):pr("Perfect %d"%s+("" if f==0 else " from %d"%f))
+if s==len(a):pr("Perfect %d"%s+("" if f==0 else " from %d to %d"%(f,f+s)))
 i=-1
 r=0
 for i,c in enumerate(zip(a,p[f:]),f):
@@ -39,4 +39,4 @@ for i,c in enumerate(zip(a,p[f:]),f):
 	else:
 		print(i,c,"!!!")
 		r+=1
-pr("%d out of %d"%(len(a)-r,len(a))+("" if f==0 else " from %d"%f))
+pr("%d out of %d"%(len(a)-r,len(a))+("" if f==0 else " from %d to %d"%(f,f+len(a))))

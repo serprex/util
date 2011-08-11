@@ -1,6 +1,8 @@
 #!/bin/sh
 t=`mktemp`
-if [ $# -gt 0 ]
+if [ $# -eq 1 -a -d "$1" ]
+then find "$1" -type f -exec mplayer {} \+
+elif [ $# -gt 0 ]
 then eval find\ `python -c 'from sys import argv
 for c in range(len(argv)):
 	if argv[c][0]=="-":argv[c:c+1]=argv[c][1:]
@@ -16,6 +18,6 @@ while c<len(argv):
 	elif argv[c][0]=="|":p+=argv.pop(c)
 	else:c+=1
 e=lambda x:"'\''"+"'\'\''".join(x).replace("'\'\'\''","\x27\x5c")+"'\''"
-print(" ".join(map(e,argv[1:]))+" -type f -print0"+p+">$t;exec xargs -0a $t "+e(argv[0]))' "$@"`
-else exec mplayer -shuffle m/*/*
+print(" ".join(map(e,argv[1:]))+" -type f -print0"+p+">$t;exec xargs -0a $t "+argv[0])' "$@"`
+else exec mplayer -shuffle ~/m/*/*
 fi
