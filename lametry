@@ -2,7 +2,7 @@
 for f in "$@"
 do if [ -f "$f" ]
 then ~/s/misc/id3rm "$f"
-lame -hvB 192 "$f" "$f."
+lame --noreplaygain -hvB 192 "$f" "$f."
 if [ `stat -c %s "$f"` -gt `stat -c %s "$f."` ]
 then mv -f "$f." "$f"
 else rm "$f."
