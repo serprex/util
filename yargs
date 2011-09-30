@@ -1,24 +1,27 @@
 #!/bin/sh
-if [ $# -eq 1 -a -d "$1" ]
-then find "$1" -type f -exec mplayer {} \+
-elif [ $# -gt 0 ]
-then t=`mktemp`
-eval find\ `python -c 'from sys import argv
-for c in range(len(argv)):
-	if argv[c][0]=="-":argv[c:c+1]=argv[c][1:]
-argv=[{
-"r":"|sort -Rz",
-"s":"|sort -z",
-"p":"mplayer"}.get(c,c) for c in argv[1:] if c]
-p=""
-for c in range(len(argv)-3,-1,-1):
-	if argv[c]==",":argv[c:c+3]=argv[c+1]+argv[c+2],
-while c<len(argv):
-	if argv[c].isdigit():argv[c:c+2]=(argv[c+1],)*int(argv[c])
-	elif argv[c][0]=="|":p+=argv.pop(c)
-	else:c+=1
-e=lambda x:"'\''"+"'\'\''".join(x).replace("'\'\'\''","\x27\x5c")+"'\''"
-print(" ".join(map(e,argv[1:]))+" -type f -print0"+p+">$t;exec xargs -0a $t "+argv[0])' "$@"`
+if [ -d "$1" ]
+then find "$@" -type f -exec mplayer -shuffle {} \+
+elif [ $# -eq 0 ]
+then exec mplayer -shuffle ~/m/*/*
+else t=`mktemp`
+SH=""
+FN=""
+if [ "$1" = p ]
+then CM=mplayer
+else CM="$1"
+fi
+shift
+for a
+do
+if [ "${a:0:1}" = \| ]
+then SH="$SH$a"
+elif [ "$a" = r ]
+then SH="$SH|sort -Rz"
+elif [ "$a" = s ]
+then SH="$SH|sort -z"
+else FN="$FN "`printf %q "$a"`
+fi
+done
+eval "find $FN -type f -print0$SH>\$t;exec xargs -0a \$t $CM"
 rm $t
-else exec mplayer -shuffle ~/m/*/*
 fi
