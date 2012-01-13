@@ -1,11 +1,9 @@
 #!/bin/sh
-if [ -d "$1" ]
-then find "$@" -type f -exec mplayer -shuffle {} \+
-elif [ $# -eq 0 ]
+if [ $# -eq 0 ]
 then exec mplayer -shuffle ~/m/*/*
+elif [ -d "$1" -o -f "$1" ]
+then find "$@" -type f -exec mplayer -shuffle {} \+
 else t=`mktemp`
-SH=""
-FN=""
 if [ "$1" = p ]
 then CM=mplayer
 else CM="$1"

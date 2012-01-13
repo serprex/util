@@ -7,5 +7,6 @@ if [ `stat -c %s "$f"` -gt `stat -c %s "$f."` ]
 then mv -f "$f." "$f"
 else rm "$f."
 fi
+rename .mp3 '' "$f"
 fi
 done
