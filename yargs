@@ -2,7 +2,7 @@
 if [ $# -eq 0 ]
 then exec mplayer -shuffle ~/m/*/*
 elif [ -d "$1" -o -f "$1" ]
-then find "$@" -type f -exec mplayer -shuffle {} \+
+then exec find "$@" -type f -exec mplayer -shuffle {} \+
 else t=`mktemp`
 if [ "$1" = p ]
 then CM=mplayer
@@ -21,5 +21,5 @@ else FN="$FN "`printf %q "$a"`
 fi
 done
 eval "find $FN -type f -print0$SH>\$t;exec xargs -0a \$t $CM"
-rm $t
+exec rm $t
 fi

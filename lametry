@@ -1,12 +1,16 @@
 #!/bin/sh
 for f in "$@"
 do if [ -f "$f" ]
-then ~/s/misc/id3rm "$f"
+then if [ ${f#*.} == m4a ]
+then faad -wd "$f" | lame --noreplaygain -hvB 192 - "${f%.m4a}"
+else
+~/s/misc/id3rm "$f"
 lame --noreplaygain -hvB 192 "$f" "$f."
 if [ `stat -c %s "$f"` -gt `stat -c %s "$f."` ]
 then mv -f "$f." "$f"
 else rm "$f."
 fi
 rename .mp3 '' "$f"
+fi
 fi
 done
