@@ -1,11 +1,12 @@
 #!/bin/sh
+echo "$@"
 for f in "$@"
 do if [ -f "$f" ]
-then if [ ${f#*.} == m4a ]
-then faad -wd "$f" | lame --noreplaygain -hvB 192 - "${f%.m4a}"
+then if [ "${f#*.}" = m4a ]
+then faad -wqd "$f" | lame --noreplaygain --silent -vq 0 -B 192 - "${f%.m4a}"
 else
 ~/s/misc/id3rm "$f"
-lame --noreplaygain -hvB 192 "$f" "$f."
+lame --noreplaygain --silent -vq 0 -B 192 "$f" "$f."
 if [ `stat -c %s "$f"` -gt `stat -c %s "$f."` ]
 then mv -f "$f." "$f"
 else rm "$f."
