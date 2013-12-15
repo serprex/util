@@ -2,10 +2,10 @@
 #include <stdio.h>
 int main(int argc,char**argv){
 	char*argv1,*temp=tmpnam(0);
-	if(argc<3) puts("u NIX\nd DOS\nm MAC\n? ???\nsn \\t->n spaces\ntn n spaces->\\t");
+	if(argc<3)puts("u NIX\nd DOS\nm MAC\n? ???\nsn \\t->n spaces\ntn n spaces->\\t");
 	else for(int ch,i=(argv1=argv[1]+(argv[1][0]=='-'),2);i<argc;i++){
 		FILE*rame=fopen(argv[i],"rb");
-		if(!rame) printf("? %s\n",argv[i]);
+		if(!rame)printf("? %s\n",argv[i]);
 		else if(argv1[0]=='?'){
 			while((ch=getc(rame))!=0xa&&ch!=0xd&&ch!=EOF);
 			printf("%s: %s\n",argv[i],ch==0xa?"NIX":ch==EOF?"???":(getc(rame)==0xa?"DOS":"MAC"));
@@ -19,18 +19,18 @@ int main(int argc,char**argv){
 					if(ch==0xd||(ch==0xa&&!ch0d)){
 						putc(0xd,wame);
 						putc(0xa,wame);
-					}else if(ch!=0xa) putc(ch,wame);
+					}else if(ch!=0xa)putc(ch,wame);
 				break;case'm':
-					if(ch!=0xa) putc(ch,wame);
-					else if(!ch0d) putc(0xd,wame);
+					if(ch!=0xa)putc(ch,wame);
+					else if(!ch0d)putc(0xd,wame);
 				break;case'u':
-					if(!ch0d) putc(ch==0xd?0xa:ch,wame);
+					if(!ch0d)putc(ch==0xd?0xa:ch,wame);
 				break;case's':
-					if(ch!='\t') putc(ch,wame);
-					else for(ch0d=argv1[1]-48;ch0d;ch0d--) putc(' ',wame);
+					if(ch!='\t')putc(ch,wame);
+					else for(ch0d=argv1[1]-48;ch0d;ch0d--)putc(' ',wame);
 				continue;case't':
 					if(ch!=' '){
-						for(;ch0d;ch0d--) putc(' ',wame);
+						for(;ch0d;ch0d--)putc(' ',wame);
 						putc(ch,wame);
 					}else if(++ch0d==(argv1[1]-48)){
 						ch0d=0;

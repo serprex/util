@@ -4,13 +4,15 @@ for f in "$@"
 do if [ -f "$f" ]
 then if [ "${f#*.}" = m4a ]
 then faad -wqd "$f" | lame --noreplaygain --silent -vq 0 -B 192 - "${f%.m4a}"
-else
-~/s/misc/id3rm "$f"
-lame --noreplaygain --silent -vq 0 -B 192 "$f" "$f."
+elif [ "${f#*.}" = flac ]
+then flac -cd "$f" | lame --noreplaygain --silent -vq 0 -B 192 - "${f%.flac}"
+elif [ "${f#*.}" = mp3 ]
+then lame --noreplaygain --silent -vq 0 -B 192 "$f" "$f."
 if [ `stat -c %s "$f"` -gt `stat -c %s "$f."` ]
 then mv -f "$f." "$f"
 else rm "$f."
 fi
+id3rm "$f"
 rename .mp3 '' "$f"
 fi
 fi
