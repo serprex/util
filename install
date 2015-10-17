@@ -1,5 +1,5 @@
 #!/bin/sh
 test -z "$1" && set $1 "/usr/local/bin"
-for i in yargs id3rm lametry pi xlametry;
+for i in yargs id3rm lametry pi
 do ln -f $i "$1"
 done

@@ -1,2 +1,0 @@
-#!/bin/sh
-find "$@" -print0 |xargs -0n 1 -P 4 `dirname $0`/lametry

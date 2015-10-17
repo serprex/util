@@ -35,8 +35,8 @@ if s==len(a):pr("Perfect %d"%s+("" if f==0 else " from %d to %d"%(f,f+s)))
 i=-1
 r=0
 for i,c in enumerate(zip(a,p[f:]),f):
-	if c[0]==c[1]:print(i,c[0])
+	if c[0]==c[1]:print(i,"\t",c[0])
 	else:
-		print(i,c,"!!!")
+		print(i,"\t",c,"!!!")
 		r+=1
 pr("%d out of %d"%(len(a)-r,len(a))+("" if f==0 else " from %d to %d"%(f,f+len(a))))

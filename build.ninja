@@ -1,0 +1,4 @@
+rule cc
+ command=gcc -std=gnu11 -Os -s -march=native -fwhole-program $in -o $out
+build flip:cc flip.c
+build id3rm:cc id3rm.c
