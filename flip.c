@@ -3,7 +3,10 @@
 #include <string.h>
 #include <stdio.h>
 int main(int argc,char**argv){
-	if(argc<3)puts("u NIX\nd DOS\nm MAC\n? ???\nsn \\t->n spaces\ntn n spaces->\\t");
+	if(argc<3){
+		puts("u NIX\nd DOS\nm MAC\n? ???\nsn \\t->n spaces\ntn n spaces->\\t");
+		return 0;
+	}
 	const char*argv1=argv[1]+(argv[1][0]=='-');
 	if(!*argv1)return 0;
 	const char a0=*argv1,a1=argv1[1]-48;
