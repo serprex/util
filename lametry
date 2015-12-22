@@ -3,11 +3,17 @@ echo "$@"
 for f in "$@"
 do if [ -f "$f" ]
 then if [ "${f#*.}" = m4a ]
-then faad -wqd "$f" | lame --noreplaygain --silent -vq 0 -B 192 - "${f%.m4a}"
+then faad -wqd "$f" | lame --noreplaygain --silent -V 3 - "${f%.m4a}"
 elif [ "${f#*.}" = flac ]
-then flac -cd "$f" | lame --noreplaygain --silent -vq 0 -B 192 - "${f%.flac}"
+then flac -cd "$f" | lame --noreplaygain --silent -V 3 - "${f%.flac}"
+elif [ "${f#*.}" = aiff ]
+then ffmpeg -i "$f" -f mp3 -acodec libmp3lame -q:a 3 -ar 44100 "${f%.aiff}"
+id3rm "${f%.aiff}"
+elif [ "${f#*.}" = aif ]
+then ffmpeg -i "$f" -f mp3 -acodec libmp3lame -q:a 3 -ar 44100 "${f%.aif}"
+id3rm "${f%.aiff}"
 elif [ "${f#*.}" = mp3 ]
-then lame --noreplaygain --silent -vq 0 -B 192 "$f" "$f."
+then lame --noreplaygain --silent -V 3 "$f" "$f."
 if [ `stat -c %s "$f"` -gt `stat -c %s "$f."` ]
 then mv -f "$f." "$f"
 else rm "$f."
